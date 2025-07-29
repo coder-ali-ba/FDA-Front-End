@@ -48,7 +48,7 @@ export default function MenuModal({Close}) {
       setImage(event.target.files[0])
  }
 
- console.log(image);
+//  console.log(image);
  
 
 
@@ -79,7 +79,7 @@ export default function MenuModal({Close}) {
             Authorization : `Bearer ${Cookies.get("authToken")}`
         }
      })  
-     console.log(response);      
+    //  console.log(response);      
   }
 
 
