@@ -25,6 +25,9 @@ const Login = () => {
       const message =response.data.message
        alert(message);
        const verify =data.type
+
+      console.log(verify);
+      
      
           
       
