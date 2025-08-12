@@ -57,7 +57,7 @@ export default function AddResortModal() {
        })
 
        
-      profileURL = uploadImage.data.data
+      profileURL = uploadImage.data.url
        
 
        const objToSend = {
