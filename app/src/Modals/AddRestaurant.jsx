@@ -43,8 +43,7 @@ export default function AddResortModal() {
     
   const onSubmit = async(obj) => {
     
-     try {
-      
+     try {      
       let profileURL;
       const api = `${BASE_URL}${endPoints.addPhoto}`
       const formData = new FormData();
@@ -65,8 +64,8 @@ export default function AddResortModal() {
           ...obj,
           imageUrl: profileURL || null
        }
-      
 
+       console.log(uploadImage);
         const response =await axios.post(`${BASE_URL}${endPoints.createResEndPoint}` , objToSend ,{
           headers :{
              Authorization : `Bearer ${Cookies.get("authToken")}`
