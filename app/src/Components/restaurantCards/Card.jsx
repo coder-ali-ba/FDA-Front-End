@@ -29,7 +29,7 @@ const RestaurantCard = () => {
   
   useEffect(()=>{
      getRestaurants()
-  },[])
+  })
   const getRestaurants = async() => {
     try {
       const response = await axios.get(`${BASE_URL}${endPoints.getResEndPoint}`, {

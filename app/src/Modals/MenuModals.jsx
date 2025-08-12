@@ -33,7 +33,7 @@ export default function MenuModal({Close}) {
 
  React.useEffect(()=>{
     getNames()
- }, [])
+ })
 
  const getNames = async() => {
     const allNames =await axios.get(`${BASE_URL}${endPoints.getAllNames}`,{
@@ -41,6 +41,8 @@ export default function MenuModal({Close}) {
             Authorization : `Bearer ${Cookies.get("authToken")}`
         }
     })
+    
+    
     setNames(allNames.data.data)
  }
 
@@ -48,7 +50,7 @@ export default function MenuModal({Close}) {
       setImage(event.target.files[0])
  }
 
-//  console.log(image);
+ 
  
 
 
@@ -79,7 +81,7 @@ export default function MenuModal({Close}) {
             Authorization : `Bearer ${Cookies.get("authToken")}`
         }
      })  
-    //  console.log(response);      
+      console.log(response);      
   }
 
 
