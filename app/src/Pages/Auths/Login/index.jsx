@@ -21,11 +21,16 @@ const Login = () => {
     try {
       setLoading(true);
       const response = await axios.post(`${BASE_URL}auth/login`, obj);
+      
+      
       const {token , data} =response.data;
       const message =response.data.message
+      // console.log(data);
+      
        alert(message);
        const verify =data.type
 
+      
       console.log(verify);
       
      

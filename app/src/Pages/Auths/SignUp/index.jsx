@@ -113,6 +113,7 @@ const Signup = () => {
                  
                  <MenuItem value="vendor">Vendor</MenuItem>
                  <MenuItem value="customer">Customer</MenuItem>
+                 
                </Select>
             )}
           />
