@@ -25,7 +25,7 @@ const Login = () => {
       
       const {token , data} =response.data;
       const message =response.data.message
-      // console.log(data);
+      console.log(data);
       
        alert(message);
        const verify =data.type
