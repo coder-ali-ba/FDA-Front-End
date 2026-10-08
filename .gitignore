@@ -1,0 +1,11 @@
+.vercel
+.vercel
+node_modules
+.env
+.env.*
+dist
+buildnode_modules
+.env
+.env.*
+dist
+build

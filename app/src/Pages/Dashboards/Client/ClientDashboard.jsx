@@ -1,97 +1,395 @@
-import React, { useEffect, useState } from 'react'
-import Clientlayout from "../../../Components/LayoutComp/ClientLayout"
-import axios from 'axios'
-import { BASE_URL } from '../../../Utils/utility'
-import endPoints from '../../../Constants/apiEndPoints'
-import Cookies from "js-cookie"
-import { Box, Button, Stack, Typography } from '@mui/material'
-import SingleRestaurantComponent from '../../../Components/singleRestaurantComponent/singleRestaurantComponent'
+import ClientLayout from "../../../Components/LayoutComp/ClientLayout";
+import axios from "axios";
+import { BASE_URL } from "../../../Utils/utility";
+import endPoints from "../../../Constants/apiEndPoints";
+import Cookies from "js-cookie";
 
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  CircularProgress,
+  Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
 
-function  ClientDashboard () {
-  const [rests , setRests] = useState([])
-  // const [approvedMenu , setApprovedMenu]=useState([])
-  const [open , setOpen] = useState(false)
-  const [id , setId]=useState()
+import RestaurantOutlinedIcon from "@mui/icons-material/RestaurantOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 
+import SingleRestaurantComponent from "../../../Components/singleRestaurantComponent/singleRestaurantComponent";
+import { useEffect, useState } from "react";
 
- useEffect(()=>{
-  getFunc()
-  // getMenu()
- },[])
+function ClientDashboard() {
+  const [rests, setRests] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [id, setId] = useState();
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    getFunc();
+  }, []);
 
-  const getFunc = async() =>{
-      const allRestaurants = await axios.get(`${BASE_URL}${endPoints.getApprovedRestaurant}`,{
-         headers : {
-           Authorization : `Bearer ${Cookies.get("authToken")}`
-         }
-      })
+  /* -------------------------------------------------------------- */
+  /* Get Approved Restaurants                                       */
+  /* -------------------------------------------------------------- */
 
-     const{data} = allRestaurants.data
-     setRests(data)
-  }
+  const getFunc = async () => {
+    try {
+      setLoading(true);
 
-  // const getMenu = async()=>{
-  //       const response = await axios.get(`${BASE_URL}${endPoints.approvedMenu}`,{
-  //           headers : {
-  //               Authorization : `Bearer ${Cookies.get("authToken")}`
-  //           }
-  //       })       
-  //       setApprovedMenu(response.data.data)
-  //   }
+      const allRestaurants = await axios.get(
+        `${BASE_URL}${endPoints.getApprovedRestaurant}`,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("authToken")}`,
+          },
+        }
+      );
 
-  // console.log(approvedMenu);
-  
+      const { data } = allRestaurants.data;
+
+      setRests(data || []);
+    } catch (error) {
+      console.error("Error fetching restaurants:", error);
+      setRests([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* -------------------------------------------------------------- */
+  /* Open Restaurant                                                */
+  /* -------------------------------------------------------------- */
 
   const handleOpen = (id) => {
-    setOpen(true)
-    setId(id)
+    setOpen(true);
+    setId(id);
   };
-  
-  
-  
+
   return (
-    <Clientlayout>
-             {
-              open && (<SingleRestaurantComponent  openClose={setOpen} restId={id}/>)
-             }
-            {!open && <div>
-        <Typography align='center' variant='h6'>Restaurants</Typography>
-      <Stack direction={"row"} flexWrap={"wrap"} gap={"50px"} justifyContent={"center"}>
-        {rests.map((rest , index)=>(
-          <Box component={"button"} onClick={()=>handleOpen(rest.restaurantName)} key={index} sx={{ width:"350px",borderRadius:"5px", boxShadow:"3px 3px 3px 3px lightGray", padding:"10px"}}>
-             <Box>
-              <img src={rest.imageUrl} alt=""
-                 width={"180px"}
-                 style={{borderRadius:"10px"}}
-              />
-             </Box>
-             <Box pl={"10px"} >
-              <Typography variant='h5' mr={"10px"}>{rest.restaurantName}</Typography>
-              <Typography mr={"10px"}>{rest.details}</Typography>
-              <Typography color='green' mr={"10px"}>{rest.address}</Typography>
-              <Typography color='blue' mr={"10px"}>{rest.email}</Typography>             
-             </Box>
-             
+    <ClientLayout>
+      {/* -------------------------------------------------------- */}
+      {/* Restaurant Details                                       */}
+      {/* -------------------------------------------------------- */}
+
+      {open ? (
+        <SingleRestaurantComponent
+          openClose={setOpen}
+          restId={id}
+        />
+      ) : (
+        <Box>
+          {/* ---------------------------------------------------- */}
+          {/* Header                                               */}
+          {/* ---------------------------------------------------- */}
+
+          <Box
+            sx={{
+              mb: 4,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: {
+                xs: "flex-start",
+                sm: "center",
+              },
+              flexDirection: {
+                xs: "column",
+                sm: "row",
+              },
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  color: "#1B1F1D",
+                  mb: 0.7,
+                }}
+              >
+                Restaurants
+              </Typography>
+
+              <Typography
+                sx={{
+                  color: "#5E6763",
+                  fontSize: 14,
+                }}
+              >
+                Discover approved restaurants and explore their menus.
+              </Typography>
+            </Box>
+
+            {/* Restaurant Count */}
+
+            <Chip
+              icon={<RestaurantOutlinedIcon />}
+              label={`${rests.length} Restaurants`}
+              sx={{
+                backgroundColor: "#EAF3EE",
+                color: "#133A2D",
+                fontWeight: 700,
+                borderRadius: "10px",
+                px: 1,
+                height: 40,
+
+                "& .MuiChip-icon": {
+                  color: "#133A2D",
+                },
+              }}
+            />
           </Box>
-             
-        ))}
-      </Stack>
 
+          {/* ---------------------------------------------------- */}
+          {/* Loading                                               */}
+          {/* ---------------------------------------------------- */}
 
-      
-      {/* <Stack>
-        <Typography>jdnfjkd</Typography>
-      </Stack> */}
+          {loading ? (
+            <Box
+              sx={{
+                minHeight: 300,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <CircularProgress
+                size={40}
+                sx={{
+                  color: "#D93A26",
+                }}
+              />
+            </Box>
+          ) : rests.length === 0 ? (
+            /* -------------------------------------------------- */
+            /* Empty State                                         */
+            /* -------------------------------------------------- */
 
+            <Box
+              sx={{
+                minHeight: 300,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "#fff",
+                border: "1px solid #DADFDC",
+                borderRadius: "12px",
+                p: 4,
+                textAlign: "center",
+              }}
+            >
+              <RestaurantOutlinedIcon
+                sx={{
+                  fontSize: 50,
+                  color: "#133A2D",
+                  mb: 1,
+                }}
+              />
 
-      </div>}
-             
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
+                  mb: 0.5,
+                }}
+              >
+                No Restaurants Available
+              </Typography>
 
-    </Clientlayout>
-  )
+              <Typography
+                sx={{
+                  color: "#5E6763",
+                  fontSize: 14,
+                }}
+              >
+                There are currently no approved restaurants available.
+              </Typography>
+            </Box>
+          ) : (
+            /* -------------------------------------------------- */
+            /* Restaurant Cards                                    */
+            /* -------------------------------------------------- */
+
+            <Grid container spacing={3}>
+              {rests.map((rest, index) => (
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  lg={4}
+                  key={rest._id || rest.restaurantName || index}
+                >
+                  <Card
+                    onClick={() =>
+                      handleOpen(rest.restaurantName)
+                    }
+                    sx={{
+                      height: "100%",
+                      cursor: "pointer",
+                      borderRadius: "14px",
+                      backgroundColor: "#fff",
+                      border: "1px solid #DADFDC",
+                      boxShadow: "none",
+                      overflow: "hidden",
+
+                      transition:
+                        "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
+
+                      "&:hover": {
+                        transform: "translateY(-4px)",
+                        borderColor: "#9FD8BE",
+                        boxShadow:
+                          "0 10px 25px rgba(19,58,45,0.10)",
+                      },
+                    }}
+                  >
+                    {/* Restaurant Image */}
+
+                    <CardMedia
+                      component="img"
+                      height="190"
+                      image={rest.imageUrl}
+                      alt={rest.restaurantName || "Restaurant"}
+                      sx={{
+                        objectFit: "cover",
+                        backgroundColor: "#F5F7F6",
+                      }}
+                    />
+
+                    <CardContent
+                      sx={{
+                        p: 2.5,
+
+                        "&:last-child": {
+                          pb: 2.5,
+                        },
+                      }}
+                    >
+                      {/* Restaurant Name */}
+
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 800,
+                          color: "#1B1F1D",
+                          mb: 1,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {rest.restaurantName}
+                      </Typography>
+
+                      {/* Details */}
+
+                      {rest.details && (
+                        <Typography
+                          sx={{
+                            color: "#5E6763",
+                            fontSize: 14,
+                            lineHeight: 1.6,
+                            mb: 1.5,
+
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {rest.details}
+                        </Typography>
+                      )}
+
+                      <Stack spacing={1}>
+                        {/* Address */}
+
+                        {rest.address && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 1,
+                            }}
+                          >
+                            <LocationOnOutlinedIcon
+                              sx={{
+                                fontSize: 19,
+                                color: "#D93A26",
+                                mt: 0.1,
+                              }}
+                            />
+
+                            <Typography
+                              sx={{
+                                fontSize: 13,
+                                color: "#5E6763",
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              {rest.address}
+                            </Typography>
+                          </Box>
+                        )}
+
+                        {/* Email */}
+
+                        {rest.email && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <EmailOutlinedIcon
+                              sx={{
+                                fontSize: 18,
+                                color: "#133A2D",
+                              }}
+                            />
+
+                            <Typography
+                              sx={{
+                                fontSize: 13,
+                                color: "#5E6763",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {rest.email}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Stack>
+
+                      {/* View Restaurant */}
+
+                      <Typography
+                        sx={{
+                          mt: 2,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: "#D93A26",
+                        }}
+                      >
+                        View Restaurant →
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Box>
+      )}
+    </ClientLayout>
+  );
 }
 
-
-export default ClientDashboard
+export default ClientDashboard;
