@@ -1,147 +1,4 @@
-// import React, { useState } from "react";
-// import {
-//   TextField,
-//   Button,
-//   Paper,
-//   Typography,
-//   Box
-// } from "@mui/material";
-// import { useForm, Controller } from "react-hook-form";
-// import axios from "axios";
-// import { BASE_URL } from "../../../Utils/utility"; 
-// import Cookies from "js-cookie";
-// import { Link, useNavigate } from "react-router-dom";
 
-// const Login = () => {
-//   const [loading, setLoading] = useState(false);
-//   const { control, handleSubmit, reset , formState: { errors } } = useForm();
-//   const navigate = useNavigate()
-
-//   const onSubmit = async (obj) => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.post(`${BASE_URL}auth/login`, obj);
-      
-      
-//       const {token , data} =response.data;
-//       const message =response.data.message
-//       console.log(data);
-      
-//        alert(message);
-//        const verify =data.type
-
-      
-//       console.log(verify);
-      
-     
-          
-      
-//       if(token){
-//         Cookies.set("authToken" , token)
-//         if(verify =="admin"){
-         
-//           localStorage.setItem("user" , "admin")
-//           navigate("/admin-dashboard")
-//           alert("ADMIN")
-          
-//         }
-//          if(verify=="vendor"){
-//           localStorage.setItem("user" , "vendor")
-//           navigate('/vendor-dashboard')
-//           alert('VENDOR')
-          
-
-//         }
-//          if(verify == "customer"){
-//           localStorage.setItem("user" , "customer")
-//           navigate("/client-dashboard")
-//           alert("CUSTOMER")
-          
-
-//         }
-//       }
-      
-//     } catch (error) {
-//       console.error("Login Error:" , error.message);
-//     } finally {
-
-//       setLoading(false);
-//       reset()
-      
-//     }
-//   };
-
-//   return (
-//     <Paper elevation={3} sx={{ p: 4, maxWidth: 400, mx: "auto", mt: 5 }}>
-//       <Typography variant="h5" align="center" gutterBottom>
-//         Login
-//       </Typography>
-//       <Box
-//         component="form"
-//         onSubmit={handleSubmit(onSubmit)}
-//         noValidate
-//         autoComplete="off"
-//       >
-//         {/* Email */}
-//         <Controller
-//           name="email"
-//           control={control}
-//           defaultValue=""
-//           rules={{
-//             required: "Email is required",
-//             pattern: {
-//               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-//               message: "Invalid email format"
-//             }
-//           }}
-//           render={({ field }) => (
-//             <TextField
-//               {...field}
-//               label="Email"
-//               fullWidth
-//               margin="normal"
-//               error={!!errors.email}
-//               helperText={errors.email?.message}
-//             />
-//           )}
-//         />
-
-//         {/* Password */}
-//         <Controller
-//           name="password"
-//           control={control}
-//           defaultValue=""
-//           rules={{ required: "Password is required" }}
-//           render={({ field }) => (
-//             <TextField
-//               {...field}
-//               type="password"
-//               label="Password"
-//               fullWidth
-//               margin="normal"
-//               error={!!errors.password}
-//               helperText={errors.password?.message}
-//             />
-//           )}
-//         />
-
-//         <Typography>Don't have an account <Link to="/signup">Sign Up</Link></Typography>
-
-//         <Button
-//           fullWidth
-//           type="submit"
-//           variant="contained"
-//           disabled={loading}
-//           sx={{ mt: 2 }}
-//         >
-//           {loading ? "Logging in..." : "Login"}
-//         </Button>
-//       </Box>
-//     </Paper>
-//   );
-// };
-
-// export default Login;
 
 import React, { useState } from "react";
 import {
@@ -403,12 +260,13 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { data: res } = await axios.post(`${BASE_URL}auth/login`, values);
-      const { token, data } = res;
-      const role = data?.type;
-      const destination = ROLE_ROUTES[role];
-      console.log(destination);
+      const res = await axios.post(`${BASE_URL}auth/login`, values);
+      console.log(res);
       
+      const { type} = res.data.data;
+      const { token } = res.data;
+      
+       const destination = ROLE_ROUTES[type];   
 
       if (!token || !destination) {
         setServerError("We couldn't sign you in with this account. Contact support.");
@@ -416,11 +274,11 @@ const Login = () => {
       }
 
       Cookies.set("authToken", token, { sameSite: "strict" });
-      localStorage.setItem("user", role);
+      localStorage.setItem("user", type);
       navigate(destination);
     } catch (error) {
       setServerError(
-        error.response?.data?.message ||
+        error.response?.data?.data?.message ||
           "Something went wrong. Check your connection and try again."
       );
       resetField("password"); // keep the email, clear only the password

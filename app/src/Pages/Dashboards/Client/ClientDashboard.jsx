@@ -5,6 +5,7 @@ import endPoints from "../../../Constants/apiEndPoints";
 import Cookies from "js-cookie";
 
 import {
+  Alert,
   Box,
   Card,
   CardContent,
@@ -23,23 +24,37 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import SingleRestaurantComponent from "../../../Components/singleRestaurantComponent/singleRestaurantComponent";
 import { useEffect, useState } from "react";
 
+const tokens = {
+  ink: "#1B1F1D",
+  muted: "#5E6763",
+  line: "#DADFDC",
+  surface: "#F5F7F6",
+  chili: "#D93A26",
+  chiliDark: "#B92E1D",
+  basil: "#133A2D",
+  basilSoft: "#1D5A45",
+  mint: "#9FD8BE",
+};
+
 function ClientDashboard() {
   const [rests, setRests] = useState([]);
   const [open, setOpen] = useState(false);
-  const [id, setId] = useState();
+  const [id, setId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     getFunc();
   }, []);
 
-  /* -------------------------------------------------------------- */
-  /* Get Approved Restaurants                                       */
-  /* -------------------------------------------------------------- */
+  // ------------------------------------------------------------
+  // Get Approved Restaurants
+  // ------------------------------------------------------------
 
   const getFunc = async () => {
     try {
       setLoading(true);
+      setError("");
 
       const allRestaurants = await axios.get(
         `${BASE_URL}${endPoints.getApprovedRestaurant}`,
@@ -52,44 +67,58 @@ function ClientDashboard() {
 
       const { data } = allRestaurants.data;
 
-      setRests(data || []);
+      setRests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching restaurants:", error);
+
       setRests([]);
+
+      setError(
+        error?.response?.data?.message ||
+          "Unable to load restaurants. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  /* -------------------------------------------------------------- */
-  /* Open Restaurant                                                */
-  /* -------------------------------------------------------------- */
+  // ------------------------------------------------------------
+  // Open Restaurant
+  // ------------------------------------------------------------
 
-  const handleOpen = (id) => {
+  const handleOpen = (restaurantId) => {
+    setId(restaurantId);
     setOpen(true);
-    setId(id);
   };
 
   return (
     <ClientLayout>
-      {/* -------------------------------------------------------- */}
-      {/* Restaurant Details                                       */}
-      {/* -------------------------------------------------------- */}
-
       {open ? (
         <SingleRestaurantComponent
           openClose={setOpen}
           restId={id}
         />
       ) : (
-        <Box>
+        <Box
+          sx={{
+            minHeight: "100%",
+            backgroundColor: tokens.surface,
+            p: {
+              xs: 1.5,
+              sm: 2.5,
+              md: 3,
+            },
+            fontFamily:
+              '"Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+          }}
+        >
           {/* ---------------------------------------------------- */}
-          {/* Header                                               */}
+          {/* Header */}
           {/* ---------------------------------------------------- */}
 
           <Box
             sx={{
-              mb: 4,
+              mb: 3,
               display: "flex",
               justifyContent: "space-between",
               alignItems: {
@@ -104,98 +133,166 @@ function ClientDashboard() {
             }}
           >
             <Box>
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 800,
-                  color: "#1B1F1D",
-                  mb: 0.7,
-                }}
+              <Stack
+                direction="row"
+                spacing={1.2}
+                alignItems="center"
               >
-                Restaurants
-              </Typography>
+                <Box
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 2.5,
+                    backgroundColor: tokens.basil,
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <RestaurantOutlinedIcon />
+                </Box>
 
-              <Typography
-                sx={{
-                  color: "#5E6763",
-                  fontSize: 14,
-                }}
-              >
-                Discover approved restaurants and explore their menus.
-              </Typography>
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: {
+                        xs: 21,
+                        sm: 26,
+                      },
+                      fontWeight: 800,
+                      color: tokens.ink,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Restaurants
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      color: tokens.muted,
+                      fontSize: 13,
+                      mt: 0.5,
+                    }}
+                  >
+                    Discover approved restaurants and explore their menus.
+                  </Typography>
+                </Box>
+              </Stack>
             </Box>
-
-            {/* Restaurant Count */}
 
             <Chip
               icon={<RestaurantOutlinedIcon />}
               label={`${rests.length} Restaurants`}
               sx={{
                 backgroundColor: "#EAF3EE",
-                color: "#133A2D",
+                color: tokens.basil,
                 fontWeight: 700,
-                borderRadius: "10px",
-                px: 1,
+                borderRadius: 2,
                 height: 40,
-
+                px: 1,
                 "& .MuiChip-icon": {
-                  color: "#133A2D",
+                  color: tokens.basil,
                 },
               }}
             />
           </Box>
 
           {/* ---------------------------------------------------- */}
-          {/* Loading                                               */}
+          {/* Error */}
+          {/* ---------------------------------------------------- */}
+
+          {error && (
+            <Alert
+              severity="error"
+              sx={{
+                mb: 2.5,
+                borderRadius: 2,
+                border: "1px solid #F0C2BC",
+                backgroundColor: "#FFF5F3",
+              }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* Loading */}
           {/* ---------------------------------------------------- */}
 
           {loading ? (
             <Box
               sx={{
-                minHeight: 300,
+                minHeight: 360,
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                flexDirection: "column",
+                gap: 1.5,
               }}
             >
               <CircularProgress
-                size={40}
+                size={42}
+                thickness={4}
                 sx={{
-                  color: "#D93A26",
-                }}
-              />
-            </Box>
-          ) : rests.length === 0 ? (
-            /* -------------------------------------------------- */
-            /* Empty State                                         */
-            /* -------------------------------------------------- */
-
-            <Box
-              sx={{
-                minHeight: 300,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "#fff",
-                border: "1px solid #DADFDC",
-                borderRadius: "12px",
-                p: 4,
-                textAlign: "center",
-              }}
-            >
-              <RestaurantOutlinedIcon
-                sx={{
-                  fontSize: 50,
-                  color: "#133A2D",
-                  mb: 1,
+                  color: tokens.chili,
                 }}
               />
 
               <Typography
-                variant="h6"
                 sx={{
+                  color: tokens.muted,
+                  fontSize: 13,
+                }}
+              >
+                Loading restaurants...
+              </Typography>
+            </Box>
+          ) : rests.length === 0 ? (
+            /* -------------------------------------------------- */
+            /* Empty State */
+            /* -------------------------------------------------- */
+
+            <Box
+              sx={{
+                minHeight: 360,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+                backgroundColor: "#fff",
+                border: `1px solid ${tokens.line}`,
+                borderRadius: 3,
+                p: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  backgroundColor: "#EAF3EE",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mb: 2,
+                }}
+              >
+                <RestaurantOutlinedIcon
+                  sx={{
+                    fontSize: 38,
+                    color: tokens.basil,
+                  }}
+                />
+              </Box>
+
+              <Typography
+                sx={{
+                  fontSize: 19,
                   fontWeight: 800,
+                  color: tokens.ink,
                   mb: 0.5,
                 }}
               >
@@ -204,8 +301,9 @@ function ClientDashboard() {
 
               <Typography
                 sx={{
-                  color: "#5E6763",
-                  fontSize: 14,
+                  color: tokens.muted,
+                  fontSize: 13,
+                  maxWidth: 420,
                 }}
               >
                 There are currently no approved restaurants available.
@@ -213,7 +311,7 @@ function ClientDashboard() {
             </Box>
           ) : (
             /* -------------------------------------------------- */
-            /* Restaurant Cards                                    */
+            /* Restaurant Cards */
             /* -------------------------------------------------- */
 
             <Grid container spacing={3}>
@@ -223,27 +321,24 @@ function ClientDashboard() {
                   xs={12}
                   sm={6}
                   lg={4}
-                  key={rest._id || rest.restaurantName || index}
+                  key={rest?._id || rest?.restaurantName || index}
                 >
                   <Card
-                    onClick={() =>
-                      handleOpen(rest.restaurantName)
-                    }
+                    onClick={() => handleOpen(rest?._id)}
                     sx={{
                       height: "100%",
                       cursor: "pointer",
-                      borderRadius: "14px",
+                      borderRadius: 3,
                       backgroundColor: "#fff",
-                      border: "1px solid #DADFDC",
+                      border: `1px solid ${tokens.line}`,
                       boxShadow: "none",
                       overflow: "hidden",
-
                       transition:
                         "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
 
                       "&:hover": {
                         transform: "translateY(-4px)",
-                        borderColor: "#9FD8BE",
+                        borderColor: tokens.mint,
                         boxShadow:
                           "0 10px 25px rgba(19,58,45,0.10)",
                       },
@@ -254,18 +349,20 @@ function ClientDashboard() {
                     <CardMedia
                       component="img"
                       height="190"
-                      image={rest.imageUrl}
-                      alt={rest.restaurantName || "Restaurant"}
+                      image={
+                        rest?.imageUrl ||
+                        "https://via.placeholder.com/600x400?text=Restaurant"
+                      }
+                      alt={rest?.restaurantName || "Restaurant"}
                       sx={{
                         objectFit: "cover",
-                        backgroundColor: "#F5F7F6",
+                        backgroundColor: tokens.surface,
                       }}
                     />
 
                     <CardContent
                       sx={{
                         p: 2.5,
-
                         "&:last-child": {
                           pb: 2.5,
                         },
@@ -277,24 +374,23 @@ function ClientDashboard() {
                         variant="h6"
                         sx={{
                           fontWeight: 800,
-                          color: "#1B1F1D",
+                          color: tokens.ink,
                           mb: 1,
                           lineHeight: 1.3,
                         }}
                       >
-                        {rest.restaurantName}
+                        {rest?.restaurantName || "Unnamed Restaurant"}
                       </Typography>
 
                       {/* Details */}
 
-                      {rest.details && (
+                      {rest?.details && (
                         <Typography
                           sx={{
-                            color: "#5E6763",
-                            fontSize: 14,
+                            color: tokens.muted,
+                            fontSize: 13,
                             lineHeight: 1.6,
                             mb: 1.5,
-
                             display: "-webkit-box",
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: "vertical",
@@ -308,7 +404,7 @@ function ClientDashboard() {
                       <Stack spacing={1}>
                         {/* Address */}
 
-                        {rest.address && (
+                        {rest?.address && (
                           <Box
                             sx={{
                               display: "flex",
@@ -319,15 +415,16 @@ function ClientDashboard() {
                             <LocationOnOutlinedIcon
                               sx={{
                                 fontSize: 19,
-                                color: "#D93A26",
+                                color: tokens.chili,
                                 mt: 0.1,
+                                flexShrink: 0,
                               }}
                             />
 
                             <Typography
                               sx={{
                                 fontSize: 13,
-                                color: "#5E6763",
+                                color: tokens.muted,
                                 lineHeight: 1.5,
                               }}
                             >
@@ -338,25 +435,27 @@ function ClientDashboard() {
 
                         {/* Email */}
 
-                        {rest.email && (
+                        {rest?.email && (
                           <Box
                             sx={{
                               display: "flex",
                               alignItems: "center",
                               gap: 1,
+                              minWidth: 0,
                             }}
                           >
                             <EmailOutlinedIcon
                               sx={{
                                 fontSize: 18,
-                                color: "#133A2D",
+                                color: tokens.basil,
+                                flexShrink: 0,
                               }}
                             />
 
                             <Typography
                               sx={{
                                 fontSize: 13,
-                                color: "#5E6763",
+                                color: tokens.muted,
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
@@ -375,7 +474,7 @@ function ClientDashboard() {
                           mt: 2,
                           fontSize: 13,
                           fontWeight: 700,
-                          color: "#D93A26",
+                          color: tokens.chili,
                         }}
                       >
                         View Restaurant →
