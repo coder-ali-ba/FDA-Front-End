@@ -35,9 +35,10 @@ import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
 
-// ==========================================
+// ============================================================
 // Theme Tokens
-// ==========================================
+// ============================================================
+
 const tokens = {
   ink: "#1B1F1D",
   muted: "#5E6763",
@@ -51,9 +52,10 @@ const tokens = {
 };
 
 
-// ==========================================
+// ============================================================
 // All Menu
-// ==========================================
+// ============================================================
+
 function AllMenu() {
   const [menus, setMenus] = useState([]);
 
@@ -68,9 +70,10 @@ function AllMenu() {
   const [actionLoading, setActionLoading] = useState(null);
 
 
-  // ==========================================
+  // ============================================================
   // Get All Menus
-  // ==========================================
+  // ============================================================
+
   const getAllMenues = async (isRefresh = false) => {
     try {
       setError("");
@@ -107,17 +110,19 @@ function AllMenu() {
   };
 
 
-  // ==========================================
+  // ============================================================
   // Initial Load
-  // ==========================================
+  // ============================================================
+
   useEffect(() => {
     getAllMenues();
   }, []);
 
 
-  // ==========================================
+  // ============================================================
   // Delete Menu
-  // ==========================================
+  // ============================================================
+
   const handleDelete = async () => {
     if (!deleteId) return;
 
@@ -151,10 +156,13 @@ function AllMenu() {
   };
 
 
-  // ==========================================
-  // Activate / Deactivate Menu
-  // ==========================================
-  const handleActive = async (id) => {
+  // ============================================================
+  // Approve / Unapprove Menu
+  // ============================================================
+
+  const handleApproval = async (id) => {
+    if (!id) return;
+
     try {
       setActionLoading(id);
       setError("");
@@ -171,11 +179,11 @@ function AllMenu() {
 
       await getAllMenues(true);
     } catch (error) {
-      console.error("UPDATE MENU STATUS ERROR:", error);
+      console.error("UPDATE MENU APPROVAL ERROR:", error);
 
       setError(
         error?.response?.data?.message ||
-          "Unable to change menu status."
+          "Unable to change menu approval status."
       );
     } finally {
       setActionLoading(null);
@@ -183,9 +191,10 @@ function AllMenu() {
   };
 
 
-  // ==========================================
+  // ============================================================
   // Loading State
-  // ==========================================
+  // ============================================================
+
   if (loading) {
     return (
       <AdminLayout>
@@ -195,6 +204,9 @@ function AllMenu() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            backgroundColor: tokens.surface,
+            fontFamily:
+              '"Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
           }}
         >
           <Stack spacing={2} alignItems="center">
@@ -222,19 +234,31 @@ function AllMenu() {
   }
 
 
+  // ============================================================
+  // Main UI
+  // ============================================================
+
   return (
     <AdminLayout>
       <Box
         sx={{
           width: "100%",
+          minHeight: "100%",
+          backgroundColor: tokens.surface,
+          p: {
+            xs: 1.5,
+            sm: 2.5,
+            md: 3,
+          },
           fontFamily:
             '"Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
         }}
       >
 
-        {/* ==========================================
-            Header
-        ========================================== */}
+        {/* ================================================== */}
+        {/* Header */}
+        {/* ================================================== */}
+
         <Box
           sx={{
             display: "flex",
@@ -256,12 +280,14 @@ function AllMenu() {
               direction="row"
               spacing={1.2}
               alignItems="center"
-              sx={{ mb: 0.7 }}
+              sx={{
+                mb: 0.7,
+              }}
             >
               <Box
                 sx={{
-                  width: 40,
-                  height: 40,
+                  width: 42,
+                  height: 42,
                   borderRadius: "12px",
                   backgroundColor: "#EAF3EE",
                   color: tokens.basil,
@@ -294,12 +320,13 @@ function AllMenu() {
                 fontSize: 14,
               }}
             >
-              Manage all food items, prices, restaurants and menu status.
+              Manage all food items, prices, restaurants and menu approval.
             </Typography>
           </Box>
 
 
           {/* Refresh */}
+
           <Button
             onClick={() => getAllMenues(true)}
             disabled={refreshing}
@@ -323,6 +350,7 @@ function AllMenu() {
               fontWeight: 700,
               color: "#fff",
               backgroundColor: tokens.chili,
+
               "&:hover": {
                 backgroundColor: tokens.chiliDark,
               },
@@ -333,9 +361,10 @@ function AllMenu() {
         </Box>
 
 
-        {/* ==========================================
-            Error Alert
-        ========================================== */}
+        {/* ================================================== */}
+        {/* Error Alert */}
+        {/* ================================================== */}
+
         {error && (
           <Alert
             severity="error"
@@ -353,9 +382,10 @@ function AllMenu() {
         )}
 
 
-        {/* ==========================================
-            Summary Cards
-        ========================================== */}
+        {/* ================================================== */}
+        {/* Summary Cards */}
+        {/* ================================================== */}
+
         <Box
           sx={{
             display: "grid",
@@ -377,10 +407,10 @@ function AllMenu() {
 
           <SummaryCard
             icon={<CheckCircleOutlineIcon />}
-            title="Active Menus"
+            title="Approved Menus"
             value={
               menus.filter(
-                (menu) => !menu?.isApproved
+                (menu) => Boolean(menu?.isApproved)
               ).length
             }
             iconBg="#EAF3EE"
@@ -389,10 +419,10 @@ function AllMenu() {
 
           <SummaryCard
             icon={<CancelOutlinedIcon />}
-            title="Inactive Menus"
+            title="Unapproved Menus"
             value={
               menus.filter(
-                (menu) => menu?.isApproved
+                (menu) => !Boolean(menu?.isApproved)
               ).length
             }
             iconBg="#FFF1EE"
@@ -401,9 +431,10 @@ function AllMenu() {
         </Box>
 
 
-        {/* ==========================================
-            Menu Section Header
-        ========================================== */}
+        {/* ================================================== */}
+        {/* Menu Section Header */}
+        {/* ================================================== */}
+
         <Box
           sx={{
             mb: 2,
@@ -448,9 +479,10 @@ function AllMenu() {
         </Box>
 
 
-        {/* ==========================================
-            Empty State
-        ========================================== */}
+        {/* ================================================== */}
+        {/* Empty State */}
+        {/* ================================================== */}
+
         {menus.length === 0 ? (
           <Card
             sx={{
@@ -506,9 +538,11 @@ function AllMenu() {
             </Box>
           </Card>
         ) : (
-          /* ==========================================
-             Menu Grid
-          ========================================== */
+
+          /* ================================================== */
+          /* Menu Grid */
+          /* ================================================== */
+
           <Box
             sx={{
               display: "grid",
@@ -516,14 +550,14 @@ function AllMenu() {
                 xs: "1fr",
                 sm: "repeat(2, 1fr)",
                 md: "repeat(3, 1fr)",
-                lg: "repeat(4, 1fr)",
+                lg: "repeat(3, 1fr)",
               },
               gap: 2.2,
             }}
           >
-            {menus.map((menu) => (
+            {menus.map((menu, index) => (
               <MenuItemCard
-                key={menu?._id}
+                key={menu?._id || index}
                 menu={menu}
                 actionLoading={actionLoading}
                 onDelete={() => {
@@ -531,7 +565,7 @@ function AllMenu() {
                   setDeleteDialog(true);
                 }}
                 onToggle={() =>
-                  handleActive(menu?._id)
+                  handleApproval(menu?._id)
                 }
               />
             ))}
@@ -539,9 +573,10 @@ function AllMenu() {
         )}
 
 
-        {/* ==========================================
-            Delete Confirmation Dialog
-        ========================================== */}
+        {/* ================================================== */}
+        {/* Delete Confirmation Dialog */}
+        {/* ================================================== */}
+
         <Dialog
           open={deleteDialog}
           onClose={() => {
@@ -596,8 +631,8 @@ function AllMenu() {
                   lineHeight: 1.6,
                 }}
               >
-                Are you sure you want to delete this menu
-                item? This action cannot be undone.
+                Are you sure you want to delete this menu item?
+                This action cannot be undone.
               </Typography>
             </Stack>
           </DialogContent>
@@ -633,7 +668,9 @@ function AllMenu() {
                 deleteLoading ? (
                   <CircularProgress
                     size={16}
-                    sx={{ color: "#fff" }}
+                    sx={{
+                      color: "#fff",
+                    }}
                   />
                 ) : (
                   <DeleteOutlineOutlinedIcon />
@@ -644,6 +681,7 @@ function AllMenu() {
                 fontWeight: 700,
                 borderRadius: "9px",
                 backgroundColor: tokens.chili,
+
                 "&:hover": {
                   backgroundColor: tokens.chiliDark,
                 },
@@ -659,9 +697,10 @@ function AllMenu() {
 }
 
 
-// ==========================================
+// ============================================================
 // Menu Item Card
-// ==========================================
+// ============================================================
+
 function MenuItemCard({
   menu,
   actionLoading,
@@ -672,18 +711,11 @@ function MenuItemCard({
     menu?.imageURL ||
     "https://via.placeholder.com/600x400?text=Food";
 
-  const isLoading = actionLoading === menu?._id;
+  const isApproved = Boolean(menu?.isApproved);
 
-  /*
-    Existing backend logic:
-    isApproved = true  -> button shows "inActive"
-    isApproved = false -> button shows "Active"
+  const isLoading =
+    actionLoading === menu?._id;
 
-    So the toggle below intentionally follows
-    the same logic as your original component.
-  */
-
-  const isActive = !menu?.isApproved;
 
   return (
     <Card
@@ -708,9 +740,10 @@ function MenuItemCard({
       }}
     >
 
-      {/* ==========================================
-          Image
-      ========================================== */}
+      {/* ================================================== */}
+      {/* Image */}
+      {/* ================================================== */}
+
       <Box
         sx={{
           position: "relative",
@@ -733,7 +766,10 @@ function MenuItemCard({
           }}
         />
 
-        {/* Status */}
+        {/* ================================================== */}
+        {/* Approval Status */}
+        {/* ================================================== */}
+
         <Box
           sx={{
             position: "absolute",
@@ -744,35 +780,38 @@ function MenuItemCard({
           <Chip
             size="small"
             icon={
-              isActive ? (
+              isApproved ? (
                 <CheckCircleOutlineIcon
                   sx={{
-                    fontSize:
-                      "15px !important",
+                    fontSize: "15px !important",
                   }}
                 />
               ) : (
                 <CancelOutlinedIcon
                   sx={{
-                    fontSize:
-                      "15px !important",
+                    fontSize: "15px !important",
                   }}
                 />
               )
             }
-            label={isActive ? "Active" : "Inactive"}
+            label={
+              isApproved
+                ? "Approved"
+                : "Unapproved"
+            }
             sx={{
-              backgroundColor: isActive
+              backgroundColor: isApproved
                 ? "#EAF3EE"
                 : "#FFF1EE",
-              color: isActive
+              color: isApproved
                 ? tokens.basil
                 : tokens.chili,
               fontWeight: 800,
               borderRadius: "8px",
               backdropFilter: "blur(8px)",
+
               "& .MuiChip-icon": {
-                color: isActive
+                color: isApproved
                   ? tokens.basilSoft
                   : tokens.chili,
               },
@@ -782,18 +821,22 @@ function MenuItemCard({
       </Box>
 
 
-      {/* ==========================================
-          Content
-      ========================================== */}
+      {/* ================================================== */}
+      {/* Content */}
+      {/* ================================================== */}
+
       <CardContent
         sx={{
           p: 2,
           flexGrow: 1,
+
           "&:last-child": {
             pb: 1.5,
           },
         }}
       >
+        {/* Item Name */}
+
         <Typography
           sx={{
             fontSize: 17,
@@ -808,6 +851,7 @@ function MenuItemCard({
 
 
         {/* Restaurant */}
+
         <Stack
           direction="row"
           spacing={0.8}
@@ -833,12 +877,14 @@ function MenuItemCard({
               whiteSpace: "nowrap",
             }}
           >
-            {menu?.restaurantName || "Restaurant not available"}
+            {menu?.restaurantName ||
+              "Restaurant not available"}
           </Typography>
         </Stack>
 
 
         {/* Description */}
+
         <Typography
           sx={{
             color: tokens.muted,
@@ -851,11 +897,13 @@ function MenuItemCard({
             minHeight: 62,
           }}
         >
-          {menu?.itemDesc || "No description available."}
+          {menu?.itemDesc ||
+            "No description available."}
         </Typography>
 
 
         {/* Price */}
+
         <Box
           sx={{
             mt: 1.8,
@@ -892,9 +940,10 @@ function MenuItemCard({
       </CardContent>
 
 
-      {/* ==========================================
-          Actions
-      ========================================== */}
+      {/* ================================================== */}
+      {/* Actions */}
+      {/* ================================================== */}
+
       <CardActions
         sx={{
           px: 2,
@@ -903,6 +952,8 @@ function MenuItemCard({
           gap: 1,
         }}
       >
+        {/* Delete */}
+
         <Button
           fullWidth
           variant="outlined"
@@ -917,6 +968,7 @@ function MenuItemCard({
             fontWeight: 700,
             color: tokens.chili,
             borderColor: "#F0C2BC",
+
             "&:hover": {
               borderColor: tokens.chili,
               backgroundColor: "#FFF6F4",
@@ -926,6 +978,8 @@ function MenuItemCard({
           Delete
         </Button>
 
+
+        {/* Approve / Unapprove */}
 
         <Button
           fullWidth
@@ -938,8 +992,10 @@ function MenuItemCard({
                   color: "#fff",
                 }}
               />
+            ) : isApproved ? (
+              <CancelOutlinedIcon />
             ) : (
-              <AutorenewIcon />
+              <CheckCircleOutlineIcon />
             )
           }
           onClick={onToggle}
@@ -949,17 +1005,28 @@ function MenuItemCard({
             borderRadius: "9px",
             textTransform: "none",
             fontWeight: 700,
-            backgroundColor: tokens.basil,
+
+            backgroundColor: isApproved
+              ? tokens.chili
+              : tokens.basil,
+
             "&:hover": {
-              backgroundColor: tokens.basilSoft,
+              backgroundColor: isApproved
+                ? tokens.chiliDark
+                : tokens.basilSoft,
+            },
+
+            "&.Mui-disabled": {
+              backgroundColor: "#D9DEDB",
+              color: "#7B8580",
             },
           }}
         >
           {isLoading
             ? "Updating..."
-            : isActive
-            ? "Inactivate"
-            : "Activate"}
+            : isApproved
+            ? "Unapprove"
+            : "Approve"}
         </Button>
       </CardActions>
     </Card>
@@ -967,9 +1034,10 @@ function MenuItemCard({
 }
 
 
-// ==========================================
+// ============================================================
 // Summary Card
-// ==========================================
+// ============================================================
+
 function SummaryCard({
   icon,
   title,
@@ -989,6 +1057,7 @@ function SummaryCard({
       <CardContent
         sx={{
           p: 2.2,
+
           "&:last-child": {
             pb: 2.2,
           },
